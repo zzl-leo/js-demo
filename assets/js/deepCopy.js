@@ -15,6 +15,17 @@ function deepCopySimple(obj) {
 function deepCopy(obj) {
 	let objClone = Array.isArray(obj) ? [] : {}
 	if (obj && typeof obj === 'object') {
+
+		// 传参为正则
+		if(obj instanceof RegExp){ 
+			objClone = new RegExp(obj.source, obj.flags)
+		}
+
+		// 日期复制
+		if(obj instanceof Date){ 
+			objClone = new Date(obj - 0)
+		}
+
 		for (key in obj) {
 			if (obj.hasOwnProperty(key)) {
 				if (obj[key] && typeof obj[key] === 'object') {

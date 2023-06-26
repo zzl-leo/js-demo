@@ -20,8 +20,12 @@
 		str: 'haha',
 		obj: {
 			ary: [4, 5, 6],
-			und: undefined
-		}
+			und: undefined,
+			reg22: /\./i
+		},
+		reg: /\./i,
+		func: () => {console.log(123)},
+		date: new Date()
 	}
 	let objClone = deepCopy(obj)
 	console.log('obj', obj)
