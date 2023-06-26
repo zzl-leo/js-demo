@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div class="count-down">
+    <h1 id="count-down"></h1>
+  </div>
+
+
+  <script>
+    class CuntDown {
+      constructor(options) {
+        this.onFinish = options.onFinish
+        this.counting = false
+
+        // 剩余时间
+        this.remain = options.time
+
+        // 结束时间
+        this.endTime = 0
+        this.format = options.format
+
+        this.init();
+      }
+
+      init() {
+        console.log(this.currentTime().format)
+        this.start()
+      }
+
+      currentTime() {
+        return this.formatTime(this.format, this.parseTime(this.remain))
+      }
+
+      getCurrentRemain() {
+        return Math.max(this.endTime - Date.now(), 0)
+      }
+
+      formatTime(format, time) {
+        let {
+          days,
+          hours,
+          minutes,
+          seconds,
+          milliseconds
+        } = time
+
+        // 判断是否需要展示 天数，需要则补 0，否则将 天数 降级加到 小时 部分
+        if (format.includes('DD')) {
+          format = format.replace('DD', this.padZero(days))
+        } else {
+          hours += days * 24
+        }
+
+        // 判断是否需要展示 小时，需要则补 0，否则将 小时 降级加到 分钟 部分
+        if (format.includes('HH')) {
+          format = format.replace('HH', this.padZero(hours))
+        } else {
+          minutes += hours * 60
+        }
+
+        // 判断是否需要展示 分钟，需要则补 0，否则将 分钟 降级加到 秒数 部分
+        if (format.includes('mm')) {
+          format = format.replace('mm', this.padZero(minutes))
+        } else {
+          seconds += minutes * 60
+        }
+
+        // 判断是否需要展示 秒数，需要则补 0，否则将 秒数 降级加到 毫秒 部分
+        if (format.includes('ss')) {
+          format = format.replace('ss', this.padZero(seconds))
+        } else {
+          milliseconds += seconds * 1000
+        }
+
+        // 默认展示 3位 毫秒数
+        if (format.includes('SSS')) {
+          const ms = this.padZero(milliseconds, 3)
+          format = format.replace('SSS', ms)
+        }
+
+        // 最终返回格式化的数据
+        return {
+          format,
+          days,
+          hours,
+          minutes,
+          seconds,
+          milliseconds
+        }
+      }
+
+      padZero(str, padLength = 2) {
+        str += ''
+        if (str.length < padLength) {
+          str = '0'.repeat(padLength - str.length) + str
+        }
+        return str
+      }
+
+      parseTime(time) {
+        const SECOND = 1000
+        const MINUTE = 60 * SECOND
+        const HOUR = 60 * MINUTE
+        const DAY = 24 * HOUR
+
+        const days = Math.floor(time / DAY)
+        const hours = Math.floor((time % DAY) / HOUR)
+        const minutes = Math.floor((time % HOUR) / MINUTE)
+        const seconds = Math.floor((time % MINUTE) / SECOND)
+        const milliseconds = Math.floor(time % SECOND)
+
+        return {
+          days,
+          hours,
+          minutes,
+          seconds,
+          milliseconds,
+        }
+      }
+
+      // 设置剩余时间
+      setRemain(value) {
+
+        // 更新剩余时间
+        this.remain = value
+
+        // 倒计时结束
+        if (value === 0) {
+          if (this.onFinish) {
+            this.onFinish()
+          }
+
+          // 正在倒计时标志为 false
+          this.counting = false
+        }
+      }
+
+      // 倒计时
+      tickTime() {
+        requestAnimationFrame(() => {
+          // 更新剩余时间
+          this.setRemain(this.getCurrentRemain())
+
+          // 倒计时没结束，就继续
+          if (this.remain > 0) {
+            this.tickTime()
+          }
+
+          document.querySelector('#count-down').innerHTML = this.currentTime().format
+        })
+      }
+
+      // 启动
+      start() {
+        // 正在倒计时，忽略多次调用 start 
+        if (this.counting) return
+
+        // 正在倒计时标志为 true
+        this.counting = true
+
+        // 设置结束时间
+        this.endTime = Date.now() + this.remain
+
+        // 开启倒计时
+        this.tickTime()
+      }
+    }
+
+    new CuntDown({
+      time: 15000,
+      format: 'DD:HH:mm:ss:SSS'
+    })
+  </script>
+</body>
+
+</html>
